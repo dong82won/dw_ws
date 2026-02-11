@@ -15,7 +15,8 @@ def generate_launch_description():
     pkg_boxbot_description = get_package_share_directory('boxbot_description')
 
     # URDF 파일 경로
-    urdf_path = os.path.join(pkg_boxbot_description, 'urdf', 'box_bot3.urdf')
+    urdf_file = os.path.join(pkg_boxbot_description, 'urdf', 'box_bot3.urdf')
+    xacro_file = os.path.join(pkg_boxbot_description, 'urdf', 'box_bot3.urdf.xacro')
 
     # 파라미터 참조 (상위 런치 파일에서 정의됨)
     # Spawn 위치 파라미터
@@ -24,8 +25,8 @@ def generate_launch_description():
     z_pose = LaunchConfiguration('z_pose', default='0.3')
 
     # URDF 내용을 읽어오기 위한 Command 객체
-    # robot_desc = ParameterValue(Command(['cat ', urdf_path]), value_type=str)
-    robot_desc = ParameterValue(Command(['xacro ', urdf_path]),value_type=str)
+    # robot_desc = ParameterValue(Command(['xacro ', urdf_file]),value_type=str)
+    robot_desc = ParameterValue(Command(['xacro ', xacro_file]),value_type=str)
 
     # robot_state_publisher 노드
     robot_state_publisher_node = Node(

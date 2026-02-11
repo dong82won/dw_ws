@@ -14,7 +14,7 @@
     <xacro:property name="caster_radius" value="0.01"/>
     <xacro:property name="caster_xgap"   value="0.035"/>
 
-    <xacro:include filename="box_bot3.gazebo.xacro" />
+    <xacro:include filename="box_bot3.gazebo.xacro" /> 
     <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro" />
 
     <material name="red"><color rgba="1.0 0.0 0.0 1"/></material>
@@ -28,7 +28,7 @@
     <link name="base_link">
         <visual>
             <geometry>
-                <mesh filename="package://my_box_bot_description/meshes/cute_cube.dae" scale="0.1 0.1 0.1"/>
+                <mesh filename="package://boxbot_description/meshes/cute_cube.dae" scale="0.1 0.1 0.1"/>
             </geometry>
         </visual>
         <collision>
@@ -133,7 +133,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://my_box_bot_description/meshes/sensors/rplidar.dae" scale="1.0 1.0 1.0"/>
+                <mesh filename="package://boxbot_description/meshes/sensors/rplidar.dae" scale="1.0 1.0 1.0"/>
             </geometry>
         </visual>
         <collision>
@@ -153,8 +153,7 @@
     <joint name="laser_scan_link_joint" type="fixed"> 
         <origin rpy="0 0 0" xyz="0 0 0.05"/>
         <parent link="base_link"/>
-        <child link="laser_scan_link"/>
-    
+        <child link="laser_scan_link"/>    
         <!-- <axis xyz="0 0 1"/>
         <limit effort="10.0" velocity="100.0"/>
         <dynamics damping="0.01" friction="0.01"/> -->
