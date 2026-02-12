@@ -3,7 +3,7 @@
 
     <material name="orange"><color rgba="1 0.5 0 1"/></material>
     <material name="green_dark"><color rgba="0 0.5 0 1"/></material>
-    <material name="box_bot_blue"><color rgba="0.088656 0.428691 0.491021 1"/></material>
+    <material name="bot_blue"><color rgba="0.088656 0.428691 0.491021 1"/></material>
 
     <link name="base_footprint"/>
 
@@ -130,8 +130,7 @@
         <material>Gazebo/Purple</material>
     </gazebo>
 
-
-     <link name="rear_caster_link">
+    <link name="rear_caster_link">
         <visual>
             <geometry><sphere radius="0.01"/></geometry>
             <material name="green_dark"/>
@@ -181,6 +180,15 @@
         <child link="camera_link"/>
     </joint>
 
+    <link name="camera_depth_optical_frame"/>
+
+    <joint name="camera_optical_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="-1.57079632679 0 -1.57079632679"/>
+        <parent link="camera_link"/>
+        <child link="camera_depth_optical_frame"/>
+    </joint>
+
+
     <link name="laser_scan_link">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
@@ -206,7 +214,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry><box size="0.015 0.015 0.0025"/></geometry>
-            <material name="box_bot_blue"/>
+            <material name="bot_blue"/>
         </visual>
     </link>
     <joint name="imu_joint" type="fixed">
@@ -214,8 +222,10 @@
         <parent link="base_link"/>
         <child link="imu_link"/>
     </joint>
+    <gazebo reference="imu_link">
+        <material>Gazebo/Red</material>
+    </gazebo>
 
-    
     <gazebo>
         <plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
             <ros>
@@ -226,12 +236,19 @@
             <joint_name>right_wheel_joint</joint_name>
         </plugin>
     </gazebo>
-    
+
     <gazebo>
         <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
             <ros>
                 <namespace>/</namespace>
+                <remapping>cmd_vel:=cmd_vel</remapping>
+                <remapping>odom:=odom</remapping>
             </ros>
+
+            <update_rate>30</update_rate>
+
+            <!-- <num_wheel_pairs>1</num_wheel_pairs> -->
+
             <left_joint>left_wheel_joint</left_joint>
             <right_joint>right_wheel_joint</right_joint>
 
@@ -243,17 +260,21 @@
 
             <publish_odom>true</publish_odom>
             <publish_odom_tf>true</publish_odom_tf>
+
             <publish_wheel_tf>false</publish_wheel_tf>
+
             <odometry_frame>odom</odometry_frame>
             <robot_base_frame>base_footprint</robot_base_frame>
         </plugin>
     </gazebo>
- 
+
     <gazebo reference="camera_link">
         <sensor name="camera" type="depth">
+            <always_on>true</always_on>
             <visualize>true</visualize>
-            <update_rate>30.0</update_rate>
-            <camera name="camera">
+            <update_rate>15.0</update_rate>
+
+            <camera name="d435i">
                 <horizontal_fov>1.5184</horizontal_fov>
                 <image>
                     <width>640</width>
@@ -261,44 +282,58 @@
                     <format>R8G8B8</format>
                 </image>
                 <clip>
-                    <near>0.1</near>
-                    <far>5.0</far>
+                    <near>0.105</near>
+                    <far>10.0</far>
                 </clip>
+                <!-- <lens>
+                    <type>custom</type>
+                    <custom_function>
+                        <c1>1.05</c1>
+                        <c2>4</c2>
+                        <f>1.0</f>
+                        <fun>tan</fun>
+                    </custom_function>
+                    <scale_to_hfov>true</scale_to_hfov>
+                    <cutoff_angle>3.1415</cutoff_angle>
+                    <env_texture_size>512</env_texture_size>
+                </lens> -->
             </camera>
             <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
                 <ros>
-                    <remapping>camera/image_raw:=color/image_raw</remapping>
-                    <remapping>camera/depth/image_raw:=depth/image_rect_raw</remapping>
-                    <remapping>camera/camera_info:=color/camera_info</remapping>
-                    <remapping>camera/depth/camera_info:=depth/camera_info</remapping>
-                    <remapping>camera/points:=depth/color/points</remapping>
+                    <namespace>camera</namespace>
+                    <remapping>d435i/image_raw:=color/image_raw</remapping>
+                    <remapping>d435i/camera_info:=color/camera_info</remapping>
+                    <remapping>d435i/depth/image_raw:=depth/image_rect_raw</remapping>
+                    <remapping>d435i/depth/camera_info:=depth/camera_info</remapping>
+                    <remapping>d435i/points:=depth/color/points</remapping>
                 </ros>
                 <camera_name>d435i</camera_name>
                 <frame_name>camera_depth_optical_frame</frame_name>
-                <min_depth>0.1</min_depth>
-                <max_depth>5.0</max_depth>
+                <hack_baseline>0.05</hack_baseline>
+                <min_depth>0.105</min_depth>
+                <max_depth>10.0</max_depth>
             </plugin>
         </sensor>
     </gazebo>
 
     <gazebo reference="laser_scan_link">
-        <sensor name="lidar" type="ray">
+        <sensor name="lidar_sensor" type="gpu_ray">
             <always_on>true</always_on>
-            <visualize>true</visualize>
+            <visualize>false</visualize>
             <update_rate>10</update_rate>
             <ray>
                 <scan>
                     <horizontal>
                         <samples>360</samples>
                         <resolution>1.0</resolution>
-                        <min_angle>0.00</min_angle>
-                        <max_angle>6.28</max_angle>
+                        <min_angle>-3.14159</min_angle>
+                        <max_angle>3.14159</max_angle>
                     </horizontal>
                 </scan>
                 <range>
                     <min>0.12</min>
                     <max>8.0</max>
-                    <resolution>0.015</resolution>
+                    <resolution>0.01</resolution>
                 </range>
                 <noise>
                     <type>gaussian</type>
@@ -341,5 +376,5 @@
             </plugin>
         </sensor>
     </gazebo>
- 
+
 </robot>

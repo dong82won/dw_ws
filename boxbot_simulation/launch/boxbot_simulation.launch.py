@@ -11,11 +11,11 @@ from launch_ros.actions import Node
 from launch.conditions import IfCondition
 
 def generate_launch_description():
-    pkg_mybot_simulation = get_package_share_directory('boxbot_simulation')
-    pkg_mybot_description = get_package_share_directory('boxbot_description')
+    pkg_simulation = get_package_share_directory('boxbot_simulation')
+    pkg_description = get_package_share_directory('boxbot_description')
 
     # RViz 설정 파일
-    rviz_config_path = os.path.join(pkg_mybot_description, 'rviz', 'urdf_vis.rviz')
+    rviz_config_path = os.path.join(pkg_description, 'rviz', 'urdf_vis.rviz')
 
     # 파라미터 선언
     x_pose_arg = DeclareLaunchArgument(
@@ -29,7 +29,7 @@ def generate_launch_description():
     )
 
     z_pose_arg = DeclareLaunchArgument(
-        'z_pose', default_value='2.0',
+        'z_pose', default_value='0.2',
         description='Z position of the robot'
     )
 
@@ -47,14 +47,14 @@ def generate_launch_description():
     # 3. 월드 실행
     world_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_mybot_simulation, 'launch', 'start_world.launch.py')
+            os.path.join(pkg_simulation, 'launch', 'start_world.launch.py')
         )
     )
 
     # 4. 로봇 스폰 실행
     spawn_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_mybot_simulation, 'launch', 'spawn_robot.launch.py')
+            os.path.join(pkg_simulation, 'launch', 'spawn_robot.launch.py')
         ),
         launch_arguments={
             'x_pose': x_pose,
@@ -76,7 +76,6 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        # params
         x_pose_arg,
         y_pose_arg,
         z_pose_arg,
